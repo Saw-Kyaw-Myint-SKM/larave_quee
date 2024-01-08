@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessEmployees;
 use Illuminate\Http\Request;
 use PDO;
 
@@ -43,9 +44,8 @@ class CsvUploadController extends Controller
                     foreach($dataCsv as $data){
                         $employeeData[$index][]= array_combine($header,$data);
                     }
+                    ProcessEmployees::dispatch($employeeData[$index]);
                  }
-                 dd($employeeData);
-               
             }
             //   dd($request->all());
         } catch (\Throwable $th) {
