@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Employee;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,7 +14,7 @@ use PhpParser\Node\Stmt\TryCatch;
 
 class ProcessEmployees implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $employeeData;
     /**

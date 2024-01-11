@@ -20,3 +20,5 @@ Route::get('/', function () {
 Route::get('/upload',[CsvUploadController::class,'index'])->name('upload');
 Route::get('/progress',[CsvUploadController::class,'progress'])->name('progress');
 Route::post('/upload',[CsvUploadController::class,'uploadFileAndStoreDatabase'])->name('processFile');
+
+Route::get('/progress/data',[CsvUploadController::class,'progressForCsvStoreProcess'])->name('csvStoreProcess');

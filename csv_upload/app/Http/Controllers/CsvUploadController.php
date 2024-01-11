@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ProcessEmployees;
-use Illuminate\Http\Request;
 use PDO;
+use Illuminate\Http\Request;
+use App\Jobs\ProcessEmployees;
+use Illuminate\Support\Facades\Bus;
 
 class CsvUploadController extends Controller
 {
@@ -39,13 +40,17 @@ class CsvUploadController extends Controller
                         $dataFromcsv[]=$record;
                     }
                  }
-                 $dataFromcsv=array_chunk($dataFromcsv,300);
+                $dataFromcsv=array_chunk($dataFromcsv,300);
+                $batch= Bus::batch([])->dispatch();
                  foreach($dataFromcsv as $index=>$dataCsv){
                     foreach($dataCsv as $data){
                         $employeeData[$index][]= array_combine($header,$data);
                     }
-                    ProcessEmployees::dispatch($employeeData[$index]);
+                    $batch->add(new ProcessEmployees($employeeData[$index]));
+                    // ProcessEmployees::dispatch($employeeData[$index]);
                  }
+                session()->put('lastBatchId',$batch->id);
+                return redirect('/progress?id='. $batch->id);
             }
             //   dd($request->all());
         } catch (\Throwable $th) {
