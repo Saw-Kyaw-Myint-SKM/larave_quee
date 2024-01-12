@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use PDO;
 use Illuminate\Http\Request;
 use App\Jobs\ProcessEmployees;
+use App\Models\JobBatch;
+use Exception;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 class CsvUploadController extends Controller
 {
@@ -56,5 +59,18 @@ class CsvUploadController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function progressForCsvStoreProcess(Request $request){
+       try {
+          $batchId=$request->id ?? session()->get('lastBatchId');
+         if(JobBatch::where('id',$batchId)->count()){
+          $response=JobBatch::where('id',$batchId)->first();
+           return response()->json($response);
+         }
+       } catch (Exception $e) {
+        Log::error($e);
+        dd($e);
+       }
     }
 }
