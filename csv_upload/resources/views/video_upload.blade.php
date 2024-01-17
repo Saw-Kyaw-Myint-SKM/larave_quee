@@ -23,23 +23,19 @@
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        document.getElementById('uploadButton').addEventListener('click', function() {
-            var controller = new AbortController();
-
-            var formData = new FormData(document.getElementById('uploadForm'));
-            var progressDiv = document.getElementById('progress');
-            var cancelButton = document.getElementById('cancelButton');
-            var uploadButton = document.getElementById('uploadButton');
-
-            uploadButton.setAttribute('disabled', 'true');
-            cancelButton.removeAttribute('disabled');
-            cancelButton.addEventListener('click', function(e) {
-                controller.abort();
-                progressDiv.innerText = 'Upload Canceled!';
-                document.getElementById('uploadForm').reset();
-                uploadButton.removeAttribute('disabled');
-                cancelButton.setAttribute('disabled', 'true');
-            });
+        let controller = new AbortController();
+        let progressDiv = document.getElementById('progress');
+        let cancelButton = document.getElementById('cancelButton');
+        let uploadButton = document.getElementById('uploadButton');
+        document.getElementById('uploadButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            let formData = new FormData(document.getElementById('uploadForm'));
+            console.log(formData.get('file'));
+            if (formData.get('file').name.length < 1) {
+                console.log(formData.get('file').name)
+                alert('no data');
+                return;
+            }
 
             // Set up the request with the signal
             axios.post('/video-upload', formData, {
@@ -48,19 +44,16 @@
                     },
                     signal: controller.signal,
                     onUploadProgress: function(progressEvent) {
-                        console.log('doprogress');
                         var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent
                             .total);
                         progressDiv.innerText = 'Upload Progress: ' + percentCompleted + '%';
                     },
                 })
                 .then(function(response) {
-                    console.log(response.data.message);
                     progressDiv.innerText = response.data.message;
                 })
                 .catch(function(error) {
                     if (error.message === 'Request aborted') {
-                        // Request was intentionally aborted
                         progressDiv.innerText = 'Upload Canceled!';
                     } else {
                         console.error('Error uploading file:', error);
@@ -68,9 +61,13 @@
                 })
                 .finally(function() {
                     // Enable upload button and disable cancel button
-                    uploadButton.removeAttribute('disabled');
-                    cancelButton.setAttribute('disabled', 'true');
                 });
+        });
+
+        cancelButton.addEventListener('click', function(e) {
+            controller.abort();
+            progressDiv.innerText = 'Upload Canceled!';
+            document.getElementById('uploadForm').reset();
         });
     </script>
 @endsection
